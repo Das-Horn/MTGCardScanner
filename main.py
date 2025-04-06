@@ -10,7 +10,13 @@ def extract_text_from_image(image_path):
 
 def find_rectangles(image_path):
     img = cv2.imread(image_path)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    down_width = 300
+    down_height = 300
+    down_points = (down_width, down_height)
+    resized_down = cv2.resize(img, down_points, interpolation= cv2.INTER_LINEAR)
+
+    gray = cv2.cvtColor(resized_down, cv2.COLOR_BGR2GRAY)
 
     ret,thresh = cv2.threshold(gray,40,255,0)
     contours,hierarchy = cv2.findContours(thresh, 1, cv2.CHAIN_APPROX_SIMPLE)
@@ -18,18 +24,18 @@ def find_rectangles(image_path):
 
     for cnt in contours:
         x1,y1 = cnt[0][0]
-        approx = cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt, True), True)
+        approx = cv2.approxPolyDP(cnt, 0.2*cv2.arcLength(cnt, True), True)
         if len(approx) == 4:
             x, y, w, h = cv2.boundingRect(cnt)
             ratio = float(w)/h
             if ratio >= 0.9 and ratio <= 1.1:
-                img = cv2.drawContours(img, [cnt], -1, (0,255,255), 3)
-                cv2.putText(img, 'Square', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+                resized_down = cv2.drawContours(resized_down, [cnt], -1, (0,255,255), 3)
+                # cv2.putText(resized_down, 'Square', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
             else:
-                cv2.putText(img, 'Rectangle', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                img = cv2.drawContours(img, [cnt], -1, (0,255,0), 3)
+                # cv2.putText(resized_down, 'Rectangle', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                resized_down = cv2.drawContours(resized_down, [cnt], -1, (0,255,0), 3)
 
-    cv2.imshow("Shapes", img)
+    cv2.imshow("Shapes", resized_down)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -77,8 +83,8 @@ def main():
         print("Hewwo World :3")
 
         # find_rectangles("./test/test1.jpg")
-        # find_rectangles("./test/shapes.png")
-        find_rectangles_realtime()
+        find_rectangles("./test/test_closeup_1.jpg")
+        # find_rectangles_realtime()
 
         # print(extract_text_from_image('./test/test1.jpg'))
         # print(extract_text_from_image('./test/test2.jpg'))
