@@ -2,10 +2,12 @@ from PIL import Image
 import pytesseract
 import cv2
 import numpy as np
+from lib.cropper import crop_image
 
 def extract_text_from_image(image_path):
-    image = Image.open(image_path)
-    text = pytesseract.image_to_string(image)
+    image = Image.open(crop_image(image_path))
+    text = pytesseract.image_to_string(image, lang='eng', config='--psm 6')
+    text = text.replace('\n', ' ').replace('\x0c', ' ').replace('  ', ' ')
     return text
 
 def find_rectangles(image_path):
@@ -80,18 +82,17 @@ def find_rectangles_realtime():
 
 def main():
     try: 
-        print("Hewwo World :3")
+        print("Starting to scan ")
 
         # find_rectangles("./test/test1.jpg")
-        find_rectangles("./test/test_closeup_1.jpg")
+        # find_rectangles("./test/test_closeup_1.jpg")
         # find_rectangles_realtime()
-
-        # print(extract_text_from_image('./test/test1.jpg'))
-        # print(extract_text_from_image('./test/test2.jpg'))
-        # print(extract_text_from_image('./test/test_sleeved.jpg'))
-        # print(extract_text_from_image('./test/shapes.png'))
+        print(extract_text_from_image('./test/test1.jpg'))
+        print(extract_text_from_image('./test/test2.jpg'))
+        print(extract_text_from_image('./test/test3.jpg'))
+        print(extract_text_from_image('./test/test4.jpg'))
     except KeyboardInterrupt :
-        print("Goodbye OwO")
+        print("Goodbye")
     return
 
 if __name__ == "__main__": 
